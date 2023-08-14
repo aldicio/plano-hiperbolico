@@ -12,7 +12,7 @@ breve), foi desenvolvido uma interface Web para desenhar retas no plano hiperbó
 dos ângulos internos de qualquer polígono hiperbólico, através do PyScript. A ferramenta PyScript 
 (https://pyscript.net/) permite aos usuários criar aplicativos Python juntamente com Javascript e HTML.
 
-<div align="center"  width: 300px>
+<div align="center">
   <h3>Interface web para desenhar retas e polígonos hiperbólicos e calcular ângulos via Javascript e PyScript</h3>
   <img src="https://github.com/aldicio/plano-hiperbolico/assets/141569089/e6aad713-c44f-4920-b27c-198ca1773fff" />
 </div>
