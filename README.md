@@ -1,1 +1,1 @@
-# plano-hiperbolico
+# Plano hiperbólico - Modelo de Poincaré
