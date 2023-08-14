@@ -13,10 +13,15 @@ dos ângulos internos de qualquer polígono hiperbólico, através do PyScript. 
 (https://pyscript.net/) permite aos usuários criar aplicativos Python juntamente com Javascript e HTML.
 
 
-<img align="center" style="margin-bottom:100px" width=100% src="https://github.com/aldicio/plano-hiperbolico/telaaplicativo.png" />
+![telaaplicativo](https://github.com/aldicio/plano-hiperbolico/assets/141569089/e6aad713-c44f-4920-b27c-198ca1773fff)
+
+
+
+
+<img align="center" style="margin-bottom:100px" width=100% src="https://github.com/aldicio/plano-hiperbolico/assets/141569089/e6aad713-c44f-4920-b27c-198ca1773fff" />
+
 &nbsp;&nbsp;&nbsp; 
 
-<p align="center">I ❤️ solve great challenges using tech. <br><br> From backend development using Flask to frontend development using ReactTS, I am <strong>passionate to discover new stuffs</strong> and use them to create high quality solutions. Today, I'm a <strong>full stack mid-level developer</strong> focused on web development.</p>&nbsp;
  
 <div>
  <img = src="https://github.com/aldicio/plano-hiperbolico/telaaplicativo.png">
