@@ -26,6 +26,7 @@ estritamente menor do que $180$ graus.
 Na Figura acima temos um triângulo hiperbólico desenhado. Para fechar um polígono, basta clicar no 
 primeiro ponto (ponto com rótulo P0). Uma vez fechado o triângulo ou qualquer polígono, o botão 
 "Ângulos" ficará disponível, e ao ser clicado, todos os ângulos internos do polígono são calculados.
+Se a caixinha "retas" estive marcada, então a cada dois cliques uma reta hiperbólica será desenhada.
 
 
  
