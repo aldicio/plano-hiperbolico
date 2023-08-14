@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Plano hiperbólico de Poincaré</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    <!--<script defer onload="console.log(`${pyscript.version}`)" src="https://pyscript.net/latest/pyscript.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.03.1/pyscript.css" />
+    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
+   <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />-->
+    <!--<script defer src="https://pyscript.net/latest/pyscript.js"></script>-->
+
+    <meta name="description" content="math.js | basic usage">
+    <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
+<!-- ===================================================================================================================================== -->
+    <style>
+        canvas {
+            border: 2px solid red;
+            display: block;
+            background-color: darkcyan;
+            margin-right: auto;
+         }
+    </style>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .column {/* Coluna onde fica os dois botões */
+            float: left;
+            width: 300px;
+            padding: 10px;
+            height: 50px;
+            text-align: center;
+        }
+        .column2 {/* Coluna onde fica os checkboxes */
+            float: left;
+            width: 944px;
+            padding: 10px;
+            height: 50px;
+            text-align: center;
+        }
+        .column3 {/* Coluna onde aparecem as coord. hiperbólicas (x,y) ao mover o mouse */
+            float: left;
+            width: 160px;
+            padding: 10px;
+            height: 50px;
+            text-align: center;
+        }
+        #div_container {
+            width: 1200px;
+            height:800px;
+            border: 0px solid red;
+            margin: 0px auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<!-- ===================================================================================================================================== -->
+<body>
+<py-config>
+    packages = ["sympy"]
+</py-config>
+<!-- ===================================================================================================================================== -->
+<div class="div_container">
+    <h4>Interface web para desenhar retas e polígonos hiperbólicos e calcular ângulos via Javascript e PyScript.</h4>
+
+    <canvas id="canvas_drawing" width="1400" height="800"></canvas> <!-- Área de desenho -->
+
+    <div class="column" style="background-color:#aaa;">
+        <button id="btn_Angulos" py-click="Angulos_OnClk()" type="button" class="btn btn-primary" disabled>Ângulos</button>
+        <button id="btn_limpar"   onclick="limpar()"   type="button" class="btn btn-primary">Limpar</button>
+    </div>
+
+    <div class="column2" style="background-color:#bbb;">
+        <label for="checkPoligono">Polígono:</label>
+        <input type="checkbox" name="colors" id="checkPoligono"  checked>
+
+        <label for="CheckRetas">Retas:</label>
+        <input type="checkbox" id="CheckRetas" >
+
+        <label for="CheckRotulo">Rótulos:</label>
+        <input type="checkbox" id="CheckRotulos" checked>
+
+        <label for="CheckVertices">Vértices:</label>
+        <input type="checkbox" id="CheckVertices" checked>
+    </div>
+
+    <div class="column3" style="background-color:#aaa;">
+        <h4 id="text_coord_xy"></h4>
+    </div>
+</div>
+
+<br>
+<br>
+
+<h4 id="text_angulos"></h4>
+
+<!-- ===================================================================================================================================== -->
+
+<script>// Código em javascript
+    const buttonAngulos = document.getElementById("btn_Angulos");
+    const checkPoligono = document.getElementById("checkPoligono")
+
+    i = 0; m = 0; let  novoPoligono= 1; let z1, w1, xc, yc;
+    Ts = [] //armazena coord. da tela do click
+    Th = [] //armazena coord. hiperbolicas do click
+    Ra = [] //armazena os raios das semicircunferencias (para as retas do Tipo II)
+    CentroH = [] //armazena os centros hiperbolicos (c,0) das semicircunferencias
+    CentroS = [] //armazena os centros tela  das semicircunferencias
+    var canvasEl = document.querySelector('#canvas_drawing') //"canvas_drawing" é o "id" do "canvas" definido no html body (pois <canvas> é um objeto html)
+    var ctx = canvasEl.getContext('2d')  //getContext('2d')  permite desenhar em geometria-2D
+    ctx.fillStyle='blue'  //cor dos vértices
+    CanW = canvasEl.clientWidth;  //width do canvas
+    CanH = canvasEl.clientHeight; //Height do canvas
+    ctx.beginPath()
+
+    let OK=0
+
+    canvasEl.addEventListener('mousemove', (MouseM) => {//obtém a posição (x,y) ao mover o mouse
+        xM = MouseM.offsetX;  //coordenada "x" do move
+        yM = MouseM.offsetY;
+        xh =  xM - CanW / 2  // transforma as coord. da tela para coord. hiperbólicas (com origem (0,0) na última linha do canvas)
+        yh = -yM + CanH
+        document.getElementById("text_coord_xy").innerHTML = "(x,y)= (" + xh+"," + yh+")" //Mostra as coord. hiperbólicas em tempo real
+    })
+
+    canvasEl.addEventListener('click', (MouseC) => {//obtém a posição (x,y) do click do mouse
+        if (novoPoligono == 1) {//if novoPoligono = 1, inicia-se a construção do polígono
+            m = m+1
+            Ps = [MouseC.offsetX, MouseC.offsetY] //coord. P-click da tela
+            Ph = [Ps[0] - CanW/2, -Ps[1] + CanH] //coord. hiperbólicas de P
+            Ts.push(Ps) //push() adiciona um novo item no final do array
+            Th.push(Ph)
+
+            let proximidade =(-Ts[m-1][0]+Ts[0][0])**2+(-Ts[m-1][1]+Ts[0][1])**2//distancia ao quadrado, entre o primeiro e ultimo click. Usado para fechar o polígono
+            if (CheckVertices.checked == true){//pinta os vértices (pontinhos em cor "blue")
+                if ((proximidade==0) || ( proximidade >150)){//imprimi rotulo dos pontos e evita pintar P0 e o ultimo ponto no mesmo lugar. Ao fechar o poligono Pm=P0, daí nao imprimir Pm encima do P1.
+                    ctx.beginPath()
+                    ctx.fillStyle='blue'
+                    ctx.ellipse(Ps[0],Ps[1], 4, 4,  Math.PI/4, 0, 2*Math.PI)
+                    ctx.fill()
+                    ctx.closePath()
+                }
+            }
+
+            if (CheckRotulos.checked == true){//pinta os rótulo dos pontos em cor "black"
+                if ((proximidade==0) || ( proximidade > 150)){
+                    ctx.fillStyle='black'
+                    ctx.font = "20px serif";  //tamanho da fonte
+                    ctx.fillText("P", Ps[0]+5 , Ps[1]+5);
+                    ctx.font = "13px serif";
+                    ctx.fillText("   "+(m-1), Ps[0]+5 , Ps[1]+5);
+                }
+            }
+
+            i = i + 1
+            if (i > 1) {//Se o número de pontos  > 1, então inicia a construção do objeto hiperbólico
+                if (checkPoligono.checked == true){//permite a construção de um polígono
+                    if (OK==0){
+                        if (m>2){
+                            if ( proximidade < 150){
+                                buttonAngulos.disabled = false
+                                Ph=[Th[0][0],Th[0][1]] //último click recebe o primeiro ponto, para fechar o polígono
+                                novoPoligono=-1  //trava o canvas para não receber eventos do mouse
+                                OK = 1
+                            }
+                        }
+                    }
+                }
+                if (Ph[0] == Qh[0]){
+                    Ph[0]=Ph[0]+1/5
+                }
+
+                a = (1/2)*(Ph[0]**2+Ph[1]**2-Qh[0]**2-Qh[1]**2)/(-Qh[0]+Ph[0])//coord. x hiperbólica do centroH C da semicircunferência
+                a2 = a+CanW/2 //converte coord. hiperbólica para coordenada da tela
+                raio = Math.sqrt((Ph[0]-(1/2)*(Ph[0]**2+Ph[1]**2-Qh[0]**2-Qh[1]**2)/(-Qh[0]+Ph[0]))**2+Ph[1]**2)//raio da semicircunferencia
+
+                if (Ph[0] > Qh[0]){
+                    ai = Math.atan(Ph[1]/(Ph[0]-a)) //ângulo inicial (utilizado para desenhar arco de circunf. corretamente)
+                    af = Math.atan(Qh[1]/(Qh[0]-a)) //ângulo final (utilizado para desenhar arco de circunf. corretamente)
+                }
+                if (Qh[0] > Ph[0]){
+                    ai = Math.atan(Qh[1]/(Qh[0]-a)) //ângulo inicial
+                    af = Math.atan(Ph[1]/(Ph[0]-a)) //ângulo final
+                }
+
+                if (af < 0){//temos ângulo negativo, logo vamos somar +Pi. Por ex. se af=-0.7853981635, temos ângulo de -45 graus, e -45+180=135graus.
+                    af = af+Math.PI
+                }
+                if (ai < 0){
+                    ai = ai+Math.PI
+                }
+
+                if (CheckRetas.checked == true){//Permite desenhar as retas
+                    if(m % 2 == 0) {//se m = par, então a reta é desenhada
+                        ctx.lineWidth = 2
+                        ctx.beginPath();
+                        ctx.arc(a2, CanH, raio, 0, Math.PI, true);//true = antihorário; false=sentido horário;
+                        ctx.strokeStyle = "blue";
+                        ctx.setLineDash([1,7]); //estilo pontilhado da reta
+                        ctx.stroke();
+                    }
+                }
+
+                if (checkPoligono.checked==true){
+                    ctx.lineWidth = 2
+                    ctx.beginPath();
+                    ctx.arc(a2, CanH, raio, -ai, -af, true);
+                    ctx.strokeStyle = "red";
+                    ctx.setLineDash([]);
+                    ctx.stroke();
+                    Ra.push(raio)//vetor com os raios
+                    CentroH.push(a)//vetor com os centro C(a, 0) em coord. hiperbólicas
+                    CentroS.push(a2)//vetor com os centros C(a, 0) em coord. tela
+                }
+            }
+            Qs = Ps
+            Qh = Ph
+        }
+    })
+</script>
+<!-- ===================================================================================================================================== -->
+
+<script>
+function vetor_tangente([x0, y0, x1, y1]) {//desenha um vetor ou flecha, com comprimento "comp" fixado.
+    const width = 2;
+    const comp = 80;
+    const head_len = 10;
+    const head_angle = Math.PI / 8;
+    const angle = Math.atan2(y1 - y0, x1 - x0);
+
+    ctx.lineWidth = width;
+
+    x1 -= width * Math.cos(angle);
+    y1 -= width * Math.sin(angle);
+
+    mod = Math.sqrt((x1-x0)**2+(y1-y0)**2)
+
+    x2 = comp*(x1/mod-x0/mod)+x0
+    y2 = comp*(y1/mod-y0/mod)+y0
+
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x2 - head_len * Math.cos(angle - head_angle), y2 - head_len * Math.sin(angle - head_angle));
+    ctx.lineTo(x2 - head_len * Math.cos(angle + head_angle), y2 - head_len * Math.sin(angle + head_angle));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+}
+</script>
+
+<script>
+    function limpar(){
+        window.location.reload() //reinicia o aplicativo
+    }
+</script>
+
+<script>
+//    function createObject(object, variableName){
+  //      //Bind a variable whose name is the string variableName to the object called 'object'
+    //    let execString = variableName + " = object"
+      //  console.log("Running '" + execString + "'");
+        //eval(execString)
+    //}
+</script>
+<!-- ================================================================================================================== -->
+<py-script>
+    import js
+    from js import document
+    #from js import createObject
+    #from pyodide import create_proxy
+    from pyodide.ffi import create_proxy
+    #createObject(create_proxy(globals()), "pyodideGlobals")
+
+    def Angulos_OnClk(): #para calcular os ângulos hiperbólicos
+        from js import Ra, CentroH, CentroS, Th, Ts, vetor_tangente
+        import math
+
+        canvasEl = document.getElementById("canvas_drawing")
+        ctx = canvasEl.getContext("2d")
+        ctx.strokeStyle = "blue"
+
+        V=[] # V[i] = vetor P[i]P[i+1]
+        W=[] # W[i] = vetor P[i]P[i-1]
+        L=len(Ts) #//quantidade de pontos do polígono
+
+        for i in range(L-1):
+            V.append([Ts[i+1][0]-Ts[i][0],Ts[i+1][1]-Ts[i][1]]) # V[i] é o vetor P[i]P[i+1]
+
+        for i in range(1,L-1):
+            W.append([Ts[i-1][0]-Ts[i][0],Ts[i-1][1]-Ts[i][1]]) #W[i] é o vetor P[i]P[i-1]
+
+        W.append([Ts[L-2][0]-Ts[0][0],Ts[L-2][1]-Ts[0][1]]) #W[0] é o vetor P[0]P[L-1] (P[L-1] = último ponto).
+
+        VetsTanV=[] #armazena coordenadas dos vetores tangentes
+        VetsTanW=[] #armazena coordenadas dos vetores tangentes
+        for i in range(L-1):#calcula os vetores tangentes
+            ctx.strokeStyle = "blue"
+            p1=Ts[i][0]
+            p2=Ts[i][1] #P = (p1,p2) ponto P na semicircunferência. (Tela).
+            q1 = p1-p2+800
+            q2 = p1+p2-CentroS[i] # Q=(q1,q2), é tal que o vetor PQ é tangente à semicircunferência.
+            vtan = [q1-p1, q2-p2] #coord. do vetor tangente com sentido aleatório
+
+            SinalV = vtan[0]*V[i][0]+vtan[1]*V[i][1] #usado para desenhar o vetor tangente no sentido correto
+
+            if SinalV > 0:
+                vetor_tangente([p1,p2, q1, q2])#desenha o vetor tangente (já com módulo fixado)
+                VetsTanV.append(vtan)
+            if SinalV < 0:
+                vetor_tangente([p1,p2, 2*p1-q1, 2*p2-q2]) #desenha o vetor tangente oposto ao vetor PQ (já com módulo fixado)
+                vtanOposto=[p1-q1,p2-q2] #vtanOposto=[2*p1-q1-p1,2*p2-q2-p2]=[p1-q1,p2-q2]
+                VetsTanV.append(vtanOposto)
+
+            p1=Ts[i+1][0]
+            p2=Ts[i+1][1] #P = (p1,p2) ponto P na semicircunferência (Tela).
+            q1 = p1-p2+800
+            q2 = p1+p2-CentroS[i] # Q=(q1,q2), é tal que o vetor PQ é tangente à circunferência.
+            vtan = [q1-p1, q2-p2] #coord. do vetor tangente com sentido aleatório
+
+            SinalW = vtan[0]*W[i][0]+vtan[1]*W[i][1]
+
+            if SinalW > 0: #usado para desenhar o vetor tangente no sentido correto
+                ctx.strokeStyle = "blue"
+                vetor_tangente([p1,p2, q1, q2])
+                VetsTanW.append(vtan)
+            if SinalW < 0:
+                ctx.strokeStyle = "blue"
+                vetor_tangente([p1,p2, 2*p1-q1, 2*p2-q2])
+                vtanOposto=[p1-q1,p2-q2]
+                VetsTanW.append(vtanOposto)
+
+        def angulo_entre_vetores(u,v): #calcula o ângulo entre dois vetores
+            prod_escalar = sum(u * v for u, v in zip(u, v))
+            mod_u = math.sqrt(sum(x * x for x in u))
+            mod_v = math.sqrt(sum(x * x for x in v))
+            cos_ang = prod_escalar / (mod_u * mod_v)
+            rad_ang = math.acos(cos_ang)
+            grau_ang = math.degrees(rad_ang)
+            return grau_ang
+
+        def truncar(x,dig):# Obter x com exatamente "dig" casas decimais
+            k=10**dig
+            y = (int(x*k))/k
+            return y
+
+        display("Medida dos ângulos internos em graus.", target="text_angulos", append=True)
+        AngP0 = angulo_entre_vetores(VetsTanV[0],VetsTanW[L-2])
+        display("AngP0 = "+ str(truncar(AngP0,2)), target="text_angulos", append=True)
+
+        for i in range(1,L-1):
+            AngP=angulo_entre_vetores(VetsTanV[i],VetsTanW[i-1])
+            display("AngP"+str(i)+ " = "+ str(truncar(AngP,2)), target="text_angulos", append=True)
+        return
+</py-script>
+</body>
+</html>
