@@ -13,6 +13,5 @@ dos ângulos internos de qualquer polígono hiperbólico, através do PyScript. 
 (https://pyscript.net/) permite aos usuários criar aplicativos Python juntamente com Javascript e HTML.
 
 <div align = center>
- <img = scr="https://github.com/aldicio/plano-hiperbolico/issues/1#issue-1850129080">
+ <img = src="https://github.com/aldicio/plano-hiperbolico/issues/1#issue-1850129080">
 </div>
-
