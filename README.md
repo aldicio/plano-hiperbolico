@@ -28,6 +28,6 @@ primeiro ponto (ponto com rótulo P0). Uma vez fechado o triângulo ou qualquer 
 "Ângulos" ficará disponível, e ao ser clicado, todos os ângulos internos do polígono são calculados.
 Se a caixinha "retas" estive marcada, então a cada dois cliques uma reta hiperbólica será desenhada.
 
-<a href="https://github.com/aldicio/plano-hiperbolico/blob/6f58389b20855f50bba56166457b6de3cdefbef6/PlanoHiperbolico.html">Clique aqui para usar o aplicativo</a>
+<a href="https://aldicio.github.io/planohiperbolico/">Clique aqui para usar o aplicativo</a>
 
  
