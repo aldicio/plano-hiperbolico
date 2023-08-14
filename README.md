@@ -11,5 +11,8 @@ são congruentes. Em uma dissertação do PROFMAT-UFU (cujo link para a disserta
 breve), foi desenvolvido uma interface Web para desenhar retas no plano hiperbólico, e calcular a medida
 dos ângulos internos de qualquer polígono hiperbólico, através do PyScript. A ferramenta PyScript 
 (https://pyscript.net/) permite aos usuários criar aplicativos Python juntamente com Javascript e HTML.
-telaaplicativo.png
+
+<div align = center>
+ <img = scr=""
+</div>
 
