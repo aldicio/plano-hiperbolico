@@ -21,12 +21,12 @@ dos ângulos internos de qualquer polígono hiperbólico, através do PyScript. 
 Apresentamos aqui uma explicação de como usar a interface Web que desenvolvemos para desenhar retas 
 hiperbólicas, polígonos hiperbólicos e calcular ângulos internos de polígonos hiperbólicos. Com isso 
 o usuário poderá observar que a soma dos ângulos internos de um triângulo no plano hiperbólico é 
-estritamente menor do que $180$ graus.
+estritamente menor do que 180 graus.
 
 Na Figura acima temos um triângulo hiperbólico desenhado. Para fechar um polígono, basta clicar no 
 primeiro ponto (ponto com rótulo P0). Uma vez fechado o triângulo ou qualquer polígono, o botão 
 "Ângulos" ficará disponível, e ao ser clicado, todos os ângulos internos do polígono são calculados.
-Se a caixinha "retas" estive marcada, então a cada dois cliques uma reta hiperbólica será desenhada.
+Se a caixinha "retas" estiver marcada, então a cada dois cliques, uma reta hiperbólica será desenhada.
 
 <a href="https://aldicio.github.io/planohiperbolico/">Clique aqui para usar o aplicativo</a>
 
